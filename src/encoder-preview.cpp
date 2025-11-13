@@ -19,10 +19,12 @@
 #include <QObject>
 #include <QMenu>
 #include <random>
+#include <chrono>
 
 #include "util/util.hpp"
 
 using namespace std;
+using namespace std::chrono_literals;
 
 EncoderPreview *enc_preview;
 
@@ -399,10 +401,10 @@ bool EncoderPreview::StartOutput()
 
 void EncoderPreview::StopOutput()
 {
-	obs_output_end_data_capture(previewOut);
+        obs_output_end_data_capture(previewOut);
 
-	while (obs_output_active(previewOut))
-		;
+        while (obs_output_active(previewOut))
+                this_thread::sleep_for(10ms);
 
 	threadKill = true;
 	packetCond.notify_one();
