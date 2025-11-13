@@ -465,11 +465,11 @@ void RoiEditor::RegionItemsToData()
 					    roi.smoothing_priority);
 			obs_data_set_int(data, "smoothing_type",
 					 roi.smoothing_type);
-		} else if (item->type() == RoiListItem::CenterFocus) {
-			obs_data_set_int(data, "center_radius_inner",
-					 roi.inner_radius);
-			obs_data_set_int(data, "center_radius_outer",
-					 roi.outer_radius);
+                } else if (item->type() == RoiListItem::CenterFocus) {
+                        obs_data_set_int(data, "center_radius_inner",
+                                         roi.inner_radius);
+                        obs_data_set_int(data, "center_radius_outer",
+                                         roi.outer_radius);
 			obs_data_set_bool(data, "center_aspect_inner",
 					  roi.inner_aspect);
 			obs_data_set_bool(data, "center_circle",
@@ -480,11 +480,17 @@ void RoiEditor::RegionItemsToData()
 					 roi.inner_steps);
 			obs_data_set_int(data, "center_steps_outer",
 					 roi.outer_steps);
-			obs_data_set_double(data, "center_priority_outer",
-					    roi.outer_priority);
-			obs_data_set_int(data, "center_x", roi.center_x);
-			obs_data_set_double(data, "center_y", roi.center_y);
-		}
+                        obs_data_set_double(data, "center_priority_outer",
+                                            roi.outer_priority);
+                        obs_data_set_int(data, "center_x", roi.center_x);
+                        obs_data_set_double(data, "center_y", roi.center_y);
+                        obs_data_set_int(data, "smoothing_steps",
+                                         roi.smoothing_steps);
+                        obs_data_set_int(data, "smoothing_type",
+                                         roi.smoothing_type);
+                        obs_data_set_double(data, "smoothing_priority",
+                                            roi.smoothing_priority);
+                }
 
 		roi_data[scene_uuid].emplace_back(data);
 	}
