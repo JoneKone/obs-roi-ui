@@ -108,10 +108,19 @@ void EncoderPreview::StartPreview()
 	ui->startStopBtn->setText(obs_module_text("EncoderPreview.Stop"));
 	SetLabelText(waitingText, obs_module_text("EncoderPreview.Waiting"));
 
-	state = WAITING;
-	obs_encoder_set_video(enc, obs_get_video());
-	obs_output_set_video_encoder(previewOut, enc);
-	obs_output_start(previewOut);
+        state = WAITING;
+        obs_encoder_set_video(enc, obs_get_video());
+        obs_output_set_video_encoder(previewOut, enc);
+        if (!obs_output_start(previewOut)) {
+                state = INACTIVE;
+                obs_output_set_video_encoder(previewOut, nullptr);
+                ui->encoderCombo->setEnabled(true);
+                ui->startStopBtn->setText(
+                        obs_module_text("EncoderPreview.Start"));
+                ui->startStopBtn->setChecked(false);
+                SetLabelText(waitingText,
+                            obs_module_text("EncoderPreview.Inactive"));
+        }
 }
 
 void EncoderPreview::StopPreview()
@@ -391,12 +400,19 @@ bool EncoderPreview::StartOutput()
 	if (!enc)
 		return false;
 
-	if (!CreateCodecContext(&codecContext, enc))
-		return false;
+        if (!CreateCodecContext(&codecContext, enc))
+                return false;
 
-	decoder = std::thread(&EncoderPreview::DecodeThread, this);
+        if (!obs_output_begin_data_capture(previewOut, 0)) {
+                avcodec_free_context(&codecContext);
+                video_scaler_destroy(scaler);
+                scaler = nullptr;
+                return false;
+        }
 
-	return obs_output_begin_data_capture(previewOut, 0);
+        decoder = std::thread(&EncoderPreview::DecodeThread, this);
+
+        return true;
 }
 
 void EncoderPreview::StopOutput()
